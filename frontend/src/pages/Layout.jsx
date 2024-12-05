@@ -2,11 +2,14 @@ import React from 'react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { Outlet } from 'react-router-dom'
+import 'react-toastify/dist/ReactToastify.css'; 
+import { ToastContainer } from 'react-toastify';
 
 const Layout = () => {
     return (
         <>
         <Header />
+        <ToastContainer /> 
         <section className="header-banner bookpress-parallax" id="header-banner-id">
             <div className="container d-flex justify-content-between align-items-center text-white">
                 <div className="overlay-out">

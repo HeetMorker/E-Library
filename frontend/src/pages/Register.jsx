@@ -13,7 +13,7 @@ const Register = () => {
 
         try {
             // Send the registration data to the backend API
-            const response = await axios.post('http://localhost:5000/api/auth/register', {
+            const response = await axios.post('http://localhost:8000/api/auth/register', {
                 username: name,
                 email,
                 password

@@ -4,7 +4,6 @@ const dotenv = require('dotenv');
 const path = require('path');
 const authRoutes = require("./routes/authRoutes");
 const bookRoutes = require('./routes/bookRoutes');
-
 // Initialize app
 const app = express();
 

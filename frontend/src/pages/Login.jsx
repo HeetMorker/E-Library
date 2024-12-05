@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-    import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -11,15 +12,13 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            // Send login data to backend
-            const response = await axios.post('http://localhost:5000/api/auth/login', {
+            const response = await axios.post('http://localhost:8000/api/auth/login', {
                 email,
                 password
             });
-            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('authToken', response.data.token);
             setMessage('Login successful! Redirecting...');
-            navigate("/")
-            console.log(response.data);
+            navigate("/"); 
         } catch (error) {
             setMessage('Login failed. Please check your credentials.');
             console.error(error.response ? error.response.data : error.message);
@@ -75,7 +74,7 @@ const Login = () => {
                                 </form>
 
                                 <p className="text-center m-t30">Not registered?
-                                    <a className="register text-primary font-weight-500" data-bs-toggle="offcanvas" href="#offcanvasRegister" role="button" aria-controls="offcanvasRegister">Register here</a>
+                                    <Link className="register text-primary font-weight-500" to={"/register"} >Register here</Link>
                                 </p>
                             </div>
                         </div>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-// Function to format date
 const formatDate = (dateString) => {
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(dateString).toLocaleDateString(undefined, options);
@@ -9,13 +8,11 @@ const formatDate = (dateString) => {
 
 const Index = () => {
   const [books, setBooks] = useState([]);
-
-  // Fetch books from the backend API
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/books');
-        setBooks(response.data);
+        const books = await axios.get('http://localhost:8000/api/books');
+        setBooks(books.data);
       } catch (error) {
         console.error('Error fetching books:', error);
       }
@@ -23,26 +20,47 @@ const Index = () => {
     fetchBooks();
   }, []);
 
-  // Borrow a book
+
   const handleBorrow = async (bookId) => {
     try {
-      const response = await axios.put(`http://localhost:5000/api/books/${bookId}/borrow`, {}, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming JWT is stored in localStorage
-        }
-      });
-      alert(response.data.message);
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('Please login first!');
+        return;
+      }
   
-      // Update book state after borrowing
-      setBooks(books.map(book => 
-        book._id === bookId ? { ...book, isAvailable: false } : book
-      ));
+      console.log('Book ID:', bookId); // Debugging line
+      const response = await axios.put(
+        `http://localhost:8000/api/books/${bookId}/borrow`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      if (response.status === 200) {
+        // Success message
+        alert(response.data.message); 
+  
+        // Update the availability of the book and assign it to the user
+        setBooks((prevBooks) =>
+          prevBooks.map((book) =>
+            book._id === bookId
+              ? { ...book, isAvailable: false, borrowedBy: response.data.borrowedBy }
+              : book
+          )
+        );
+      } else {
+        alert('Failed to borrow the book.');
+      }
     } catch (error) {
-      console.error('Error borrowing book:', error);
-      alert('Error borrowing book');
+      console.error('Error borrowing book:', error.response ? error.response.data.message : error.message);
+      alert(error.response ? error.response.data.message : 'Error borrowing book');
     }
   };
-
+  
   return (
     <section id="section-blog" className="blog-section">
       <div className="container">
@@ -55,7 +73,7 @@ const Index = () => {
                   <div className="col" key={book._id}>
                     <div className="bg-white p-3 bordered-shadow">
                       <img
-                        src={book.imageUrl ? `http://localhost:5000${book.imageUrl}` : "assets/images/default-book.png"}
+                        src={book.imageUrl ? `http://localhost:8000${book.imageUrl}` : "assets/images/default-book.png"}
                         alt={book.title}
                         className="img-fluid"
                       />
@@ -67,11 +85,7 @@ const Index = () => {
                       <div className="d-flex justify-content-between pt-3">
                         <h4 className="fs-6">Written By: {book.author}</h4>
                       </div>
-                      <button
-                        className='btn btn-primary mt-4'
-                        onClick={() => handleBorrow(book._id)}
-                        disabled={!book.isAvailable} // Disable button if the book is already borrowed
-                      >
+                      <button className="btn btn-primary mt-4" onClick={() => handleBorrow(book._id)} disabled={!book.isAvailable}>
                         {book.isAvailable ? 'Borrow' : 'Not Available'}
                       </button>
                     </div>
